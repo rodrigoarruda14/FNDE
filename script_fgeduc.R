@@ -119,7 +119,7 @@ df_ref <- df_ref %>%
   ungroup()
 
 
-### Evolu??o da D?vida --------
+### Evolução da Dívida --------
 
 
 while(sum(is.na(df_ref$valor_divida)>0)){
@@ -159,7 +159,7 @@ df_ref[df_ref$valor_divida_II<0,"valor_divida_II"] <- 0
 df_ref[df_ref$valor_divida_III<0,"valor_divida_III"] <- 0
 df_ref[df_ref$valor_divida_IV<0,"valor_divida_IV"] <- 0
 
-# Arredondamento dos valores das d?vidas
+# Arredondamento dos valores das dívidas
 df_ref$valor_divida <- round(df_ref$valor_divida)
 df_ref$valor_divida_II <- round(df_ref$valor_divida_II)
 df_ref$valor_divida_III <- round(df_ref$valor_divida_III)
@@ -167,24 +167,24 @@ df_ref$valor_divida_IV <- round(df_ref$valor_divida_IV)
 
 df_ref$percent_fgeduc <- df_ref$percent_fgeduc/100
 
-## Provisionamento: Cen?rio 1 -------
+## Provisionamento: Cenário 1 -------
 
 #---------------------------------------------------------------------- #
-# Provisiona a d?vida completa apenas para os alunos classificados como #
+# Provisiona a dívida completa apenas para os alunos classificados como #
 # maus pagadores(score > 0.3);                                          #
-# O provisionamento ? feito apenas para alunos em fase de amortiza??o;  #
+# O provisionamento é feito apenas para alunos em fase de amortização;  #
 #---------------------------------------------------------------------- #
 
 df_ref %>% filter(score > 0.3) %>% mutate(prov_cen1 = ifelse(fase == "3-amortizacao", valor_divida * percent_fgeduc,0)) %>%
           group_by(cmpt) %>% summarise(qtd_contratos = n(), tot_prov_cen1 = sum(prov_cen1))
 
 
-## Provisionamento: Cen?rio 2 -------
+## Provisionamento: Cenário 2 -------
 
 #----------------------------------------------------------------------- #
-# Provisiona a d?vida completa  para os alunos classificados como maus   #
+# Provisiona a dívida completa  para os alunos classificados como maus   #
 # pagadores(score > 0.3) e proporcional ao score para os bons pagadores; #
-# O provisionamento ? feito apenas para alunos em fase de amortiza??o;   #
+# O provisionamento é feito apenas para alunos em fase de amortização;   #
 #----------------------------------------------------------------------- #
 
 df_ref %>% mutate(prov_cen2 = ifelse(score  > 0.3 & fase == "3-amortizacao", valor_divida_II * percent_fgeduc,
@@ -193,94 +193,29 @@ df_ref %>% mutate(prov_cen2 = ifelse(score  > 0.3 & fase == "3-amortizacao", val
                   
      
 
-## Provisionamento: Cen?rio 3 -------
+## Provisionamento: Cenário 3 -------
 
 #----------------------------------------------------------------------- #
-# Provisiona a d?vida completa  para os alunos classificados como maus   #
-# pagadores(score > 0.3) e proporcional ao score para os bons pagadores; #
-# O provisionamento ? feito apenas para alunos em fase de amortiza??o;   #
+# Provisiona a dívida completa  para os alunos classificados como maus   #
+# pagadores(score > 0.3) e proporcional ao score para os bons pagadores  #
+# baseado na máxima dívida;                                              #
+# O provisionamento é feito apenas para alunos em fase de amortização;   #
 #----------------------------------------------------------------------- #
 
-df_ref %>% mutate(prov_cen3 = ifelse(score  > 0.3 & fase == "3-amortizacao", valor_divida_II * percent_fgeduc,
-                              ifelse(score <= 0.3 & fase == "3-amortizacao", valor_divida_II * percent_fgeduc * score,0))) %>%
+df_ref %>% mutate(prov_cen3 = ifelse(score  > 0.3 & fase == "3-amortizacao", valor_divida_III * percent_fgeduc,
+                              ifelse(score <= 0.3 & fase == "3-amortizacao" & id_fase == 1, valor_divida_III * percent_fgeduc * score,
+                              ifelse(score <= 0.3 & fase == "3-amortizacao" & id_fase > 1, lag(valor_divida_III) * tx_juros,0)))) %>%
   group_by(cmpt) %>% summarise(qtd_contratos = n(), tot_prov_cen3 = sum(prov_cen3))
 
 
-# Provisionamento sem juros
+## Provisionamento: Cenário 4 -------
 
-base_fim <- df_ref %>% 
-  dplyr::select(cpf, cmpt, fase, valor_divida, valor_divida_30, valor_divida_50, valor_divida_70, score, percent_fgeduc, tx_juros) %>%
-  mutate(prov = round(valor_divida*percent_fgeduc*score)/100, prov_30 = round(valor_divida_30*percent_fgeduc*score)/100, prov_50 = round(valor_divida_50*percent_fgeduc*score)/100, prov_70 = round(valor_divida_70*percent_fgeduc*score)/100)
+#----------------------------------------------------------------------- #
+# Bons e maus pagam e o valor provisionado é proporcional ao score;      #
+# O provisionamento é feito apenas para alunos em fase de amortização;   #
+#----------------------------------------------------------------------- #
 
-resultado_Sem_juros <- 
-base_fim %>% group_by(cmpt) %>% 
-  summarise(qtd_contratos = n(), 
-            tot_divida = sum(valor_divida), 
-            tot_divida_30 = sum(valor_divida_30), 
-            tot_divida_50 = sum(valor_divida_50), 
-            tot_divida_70 = sum(valor_divida_70),
-            tot_prov = sum(prov),
-            tot_prov_30 = sum(prov_30),
-            tot_prov_50 = sum(prov_50),
-            tot_prov_70 = sum(prov_70))
+df_ref %>% mutate(prov_cen4 = ifelse(fase == "3-amortizacao", valor_divida_II * percent_fgeduc * score, 0)) %>%
+           group_by(cmpt) %>% summarise(qtd_contratos = n(), tot_prov_cen4 = sum(prov_cen4))
 
 
-saveRDS(base_fim, "base_sem_juros.rds")
-
-
-
-####### Evolu??o da d?vida COM juros ----
-
-while(sum(is.na(df_ref$valor_divida)>0)){
-  df_ref <- df_ref %>%
-    mutate(valor_divida = ifelse(ID == 1, valor_divida, 
-                          ifelse((ID > 1 & fase == "1-utilizacao"), lag(valor_divida) * (1+(tx_juros/200)) + vlr_semestre,
-                          ifelse((ID > 1 & fase == "2-carencia")  , lag(valor_divida) * (1+(tx_juros/200)),
-                                  lag(valor_divida) * (1+(tx_juros/200)) - vlr_abatimento))),
-           
-           valor_divida_30 = ifelse(ID == 1, valor_divida_30, 
-                             ifelse((ID > 1 & fase == "1-utilizacao"), lag(valor_divida_30) * (1+(tx_juros/200)) + vlr_semestre,
-                             ifelse((ID > 1 & fase == "2-carencia")  , lag(valor_divida_30) * (1+(tx_juros/200)),
-                             ifelse((ID > 1 & score > 0.3), lag(valor_divida_30) * (1+(tx_juros/200)),
-                                     lag(valor_divida_30) * (1+(tx_juros/200)) - vlr_abatimento)))),
-           
-           valor_divida_50 = ifelse(ID == 1, valor_divida_50, 
-                             ifelse((ID > 1 & fase == "1-utilizacao"), lag(valor_divida_50) * (1+(tx_juros/200)) + vlr_semestre,
-                             ifelse((ID > 1 & fase == "2-carencia")  , lag(valor_divida_50) * (1+(tx_juros/200)),
-                             ifelse((ID > 1 & score > 0.5), lag(valor_divida_50) * (1+(tx_juros/200)),
-                                     lag(valor_divida_50) * (1+(tx_juros/200)) - vlr_abatimento)))),
-           
-           valor_divida_70 = ifelse(ID == 1, valor_divida_70, 
-                             ifelse((ID > 1 & fase == "1-utilizacao"), lag(valor_divida_70) * (1+(tx_juros/200)) + vlr_semestre,
-                             ifelse((ID > 1 & fase == "2-carencia")  , lag(valor_divida_70) * (1+(tx_juros/200)),
-                             ifelse((ID > 1 & score > 0.7), lag(valor_divida_70) * (1+(tx_juros/200)),
-                                     lag(valor_divida_70) * (1+(tx_juros/200)) - vlr_abatimento))))
-    ) 
-}
-
-# Replace negative values to zero
-df_ref[df_ref$valor_divida<0,"valor_divida"] <- 0
-df_ref[df_ref$valor_divida_30<0,"valor_divida_30"] <- 0
-df_ref[df_ref$valor_divida_50<0,"valor_divida_50"] <- 0
-df_ref[df_ref$valor_divida_70<0,"valor_divida_70"] <- 0
-
-
-# Provisionamento cem juros
-
-base_fim <- df_ref %>% 
-  dplyr::select(cpf, cmpt, fase, valor_divida, valor_divida_30, valor_divida_50, valor_divida_70, score, percent_fgeduc, tx_juros) %>%
-  mutate(prov = round(valor_divida*percent_fgeduc*score)/100, prov_30 = round(valor_divida_30*percent_fgeduc*score)/100, prov_50 = round(valor_divida_50*percent_fgeduc*score)/100, prov_70 = round(valor_divida_70*percent_fgeduc*score)/100)
-
-resultado_com_juros <- 
-  base_fim %>% group_by(cmpt) %>% 
-  summarise(qtd_contratos = n(), 
-            tot_divida = sum(valor_divida), 
-            tot_divida_30 = sum(valor_divida_30),
-            tot_divida_50 = sum(valor_divida_50), 
-            tot_divida_70 = sum(valor_divida_70),
-            tot_prov = sum(prov),
-            tot_prov_30 = sum(prov_30),
-            tot_prov_50 = sum(prov_50),
-            tot_prov_70 = sum(prov_70))
-
-write.csv2(resultado_com_juros, "resultado_com_juros.csv")
