@@ -1,0 +1,4 @@
+inicio;fim;tipo_regencia;tx_juros;carencia;amortizacao;pgto_juros;percent_fgeduc
+01/01/2010;31/01/2013;I;3.4;3;(3*qtd_sem_contratado)+2;100;80
+01/02/2013;31/01/2015;II;3.4;3;(3*qtd_sem_contratado)+2;100;90
+01/02/2015;31/12/2017;III;6.5;3;3*qtd_sem_contratado;300;90
