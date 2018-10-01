@@ -90,8 +90,6 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
 
 ## Enviando Email
 
-msg <- iconv(text_body, to = "utf-8") # convert encode
-
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
 outMail[["To"]] = "rodrigo.arruda@fnde.gov.br;"
@@ -100,6 +98,7 @@ outMail[["body"]] = text_body
 outMail$Send()
 
 
-msg <- capture.output(cat(text_body))
+#msg <- iconv(text_body, to = "utf-8") # convert encode
+#msg <- capture.output(cat(text_body))
 
-sprintf("%s \n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n * %s \n\n", subject, titulo_materia)
+#sprintf("%s \n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n * %s \n\n", subject, titulo_materia)
