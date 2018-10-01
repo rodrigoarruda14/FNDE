@@ -4,13 +4,13 @@
 
 library(RSelenium)
 library(testit)
-library(gmailr)
 library(RDCOMClient)
+library(magrittr)
 
 # Titulo do Email
 subject <- paste0("Diário Oficial da União - ", format(Sys.Date(), "%d %B %Y"))
 
-driver<- rsDriver(browser=c("chrome"))
+driver<- rsDriver(browser=c("firefox"))
 remDr <- driver[["client"]]
 remDr$navigate("http://portal.imprensanacional.gov.br/web/guest/inicio")
 
@@ -80,21 +80,26 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
   links <- remDr$getCurrentUrl()
   
   # Corpo do Email
-  text_body <- paste0(subject, "\n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n",
-                      "*", titulo_materia, "\n\n", corpo_materia, "\n\n", "Link - ", links[[1]])
+  
+  body <- "\n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n"
+  text_body <- paste0(subject, body,
+                      "* ", titulo_materia, "\n\n", corpo_materia, "\n\n", "Link - ", links[[1]])
   
 }
 
 
 ## Enviando Email
 
+msg <- iconv(text_body, to = "utf-8") # convert encode
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
 outMail[["To"]] = "rodrigo.arruda@fnde.gov.br;"
 outMail[["subject"]] = subject
 outMail[["body"]] = text_body
-
 outMail$Send()
 
 
+msg <- capture.output(cat(text_body))
+
+sprintf("%s \n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n * %s \n\n", subject, titulo_materia)
