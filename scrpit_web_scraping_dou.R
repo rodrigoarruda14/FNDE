@@ -92,13 +92,13 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
-outMail[["To"]] = "rodrigo.arruda@fnde.gov.br;"
+outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@"
 outMail[["subject"]] = subject
 outMail[["body"]] = text_body
 outMail$Send()
 
+## Schedule
+taskscheduler_create(taskname = "Web Scraping Diario Oficial da Uniao", 
+                     rscript = "C:/Users/08259760495/Documents/Web Scraping/Web Scraping - DOU/scrpit_web_scraping_dou.R", 
+                     schedule = "WEEKLY", starttime = "06:00", days = c("MON", "TUE", "WED", "THU", "FRI"))
 
-#msg <- iconv(text_body, to = "utf-8") # convert encode
-#msg <- capture.output(cat(text_body))
-
-#sprintf("%s \n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n * %s \n\n", subject, titulo_materia)
