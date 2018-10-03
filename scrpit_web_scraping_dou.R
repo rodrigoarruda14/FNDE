@@ -92,7 +92,7 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
-outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@"
+outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@fnde.gov.br"
 outMail[["subject"]] = subject
 outMail[["body"]] = text_body
 outMail$Send()
