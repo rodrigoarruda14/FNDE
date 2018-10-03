@@ -98,7 +98,7 @@ outMail[["body"]] = text_body
 outMail$Send()
 
 ## Schedule
-taskscheduler_create(taskname = "Web Scraping Diario Oficial da Uniao", 
-                     rscript = "C:/Users/08259760495/Documents/Web Scraping/Web Scraping - DOU/scrpit_web_scraping_dou.R", 
-                     schedule = "WEEKLY", starttime = "06:00", days = c("MON", "TUE", "WED", "THU", "FRI"))
+#taskscheduler_create(taskname = "Web_Scraping_Diario_Oficial_da_Uniao", 
+#                     rscript = "C:/Users/08259760495/Documents/Web Scraping/Web Scraping - DOU/scrpit_web_scraping_dou.R", 
+#                     schedule = "WEEKLY", starttime = "06:00", days = c("MON", "TUE", "WED", "THU", "FRI"))
 
