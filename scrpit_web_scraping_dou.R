@@ -6,6 +6,7 @@ library(RSelenium)
 library(testit)
 library(RDCOMClient)
 library(magrittr)
+library(taskscheduleR)
 
 # Titulo do Email
 subject <- paste0("Diário Oficial da União - ", format(Sys.Date(), "%d %B %Y"))
