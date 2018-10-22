@@ -91,7 +91,7 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
 
 ## Enviando Email
 
-text_body <- iconv(text_body, "UTF-8", "latin1")
+#text_body <- iconv(text_body, "UTF-8", "latin1")
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
