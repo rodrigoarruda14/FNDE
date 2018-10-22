@@ -24,6 +24,13 @@ df_programas <- data.frame(nome_programa, sigla_programa, publico_programa)
 # Titulo do Email
 subject <- paste0("Diário Oficial da União - ", format(Sys.Date(), "%d %B %Y"))
 
+# Envio do Email
+OutApp <- COMCreate("Outlook.Application")
+outMail = OutApp$CreateItem(0)
+outMail[["To"]] = "rodrigo.arruda@fnde.gov.br"
+outMail[["subject"]] = subject
+
+
 driver<- rsDriver(browser=c("firefox"))
 remDr <- driver[["client"]]
 remDr$navigate("http://portal.imprensanacional.gov.br/web/guest/inicio")
@@ -101,19 +108,15 @@ for(j in sigla_programa)
     body <- "\n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n"
     text_body <- paste0(subject, body,
                         "* ", titulo_materia, "\n\n", corpo_materia, "\n\n", "Link - ", links[[1]])
-    
+    remDr$goBack() 
   }
   remDr$goBack()
-  
+  print(j)
   
   #text_body <- iconv(text_body, "UTF-8", "latin1")
-  
-  OutApp <- COMCreate("Outlook.Application")
-  outMail = OutApp$CreateItem(0)
-  outMail[["To"]] = "rodrigo.arruda@fnde.gov.br"
-  outMail[["subject"]] = subject
-  outMail[["body"]] = text_body
-  outMail$Send()
+  cat(text_body)
+  #outMail[["body"]] = text_body
+  #outMail$Send()
 }
 
 ## Enviando Email

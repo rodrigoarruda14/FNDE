@@ -1,5 +1,5 @@
 
-## Web Scraping Diario Oficial da Uni√£o ##
+## Web Scraping Diario Oficial da Uni„o ##
 
 
 library(RSelenium)
