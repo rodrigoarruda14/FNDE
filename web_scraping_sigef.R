@@ -20,6 +20,7 @@ publico_programa <- c("ensino medio", rep("jovens e adultos", 4), "educação pr
 
 df_programas <- data.frame(nome_programa, sigla_programa, publico_programa)
 
+subject <- paste0("Diário Oficial da União - ", format(Sys.Date(), "%d %B %Y"))
 corpo_email <- "Portarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação\n"
 
 driver<- rsDriver(browser=c("firefox"))
@@ -79,4 +80,9 @@ for(j in sigla_programa)
   
 }
 
-
+OutApp <- COMCreate("Outlook.Application")
+outMail = OutApp$CreateItem(0)
+outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; fabio.gomes@fnde.gov.br"
+outMail[["subject"]] = subject
+outMail[["body"]] = corpo_email
+outMail$Send()

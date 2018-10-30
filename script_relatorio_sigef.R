@@ -13,18 +13,19 @@ thm <-
     colors = c("#1a6ecc", "#434348", "#90ed7d"),
     chart = list(
       backgroundColor = "transparent",
-      style = list(fontFamily = "Source Sans Pro")
+      style = list(fontFamily = 'Tangerine')
     ),
     xAxis = list(
       gridLineWidth = 1
     )
   )
 
-extracao_cgaux <- extracao_cgaux <- read_delim("~/extracao_cgaux.csv", 
-                                               ";", escape_double = FALSE, col_types = cols(NU_PROCESSO = col_character()), 
-                                               locale = locale(encoding = "latin1"), 
-                                               trim_ws = TRUE)
+extracao_cgaux <- read_delim("~/extracao_cgaux.csv", 
+                             ";", escape_double = FALSE, col_types = cols(NU_PROCESSO = col_character()), 
+                             locale = locale(encoding = "latin1"), 
+                             trim_ws = TRUE)
 
+uf <- extracao_cgaux %>% distinct(SG_UF)
 
 saldo_estados <- extracao_cgaux %>% group_by(SG_UF) %>% 
                  summarise(saldo_conta = sum(VL_SALDO_FUNDOS))
