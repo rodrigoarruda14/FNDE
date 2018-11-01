@@ -25,6 +25,8 @@ extracao_cgaux <- read_delim("~/extracao_cgaux.csv",
                              locale = locale(encoding = "latin1"), 
                              trim_ws = TRUE)
 
+extracao_cgaux$ME_REFERENCIA <- as.Date(extracao_cgaux$ME_REFERENCIA, "%d/%m/%Y")
+
 uf <- extracao_cgaux %>% distinct(SG_UF)
 
 saldo_estados <- extracao_cgaux %>% group_by(SG_UF) %>% 
@@ -86,3 +88,22 @@ highchart() %>%
   hc_legend(valueDecimals = 0, valueSuffix = "%") %>%
   hc_mapNavigation(enabled = TRUE) %>%
   hc_add_theme(thm)
+
+
+extracao_cgaux %>% filter(SG_UF=="PE" & ME_REFERENCIA >= '2013-01-01') %>% 
+  group_by(ME_REFERENCIA) %>% 
+  summarise(saldo_fundos=sum(VL_SALDO_FUNDOS)) %>% select(saldo_fundos) %>%
+  ts(start = 2013, end = c(2018, 9), frequency = 12) %>%
+  hchart() %>% 
+  hc_add_theme(thm)
+
+
+filtered_df <- extracao_cgaux[extracao_cgaux$SG_UF == "AC" & extracao_cgaux$ME_REFERENCIA >= '2013-01-01', ]
+
+filtered_df <- data.table(filtered_df)
+filtered_df[, Media_Saldo:=mean(VL_SALDO_FUNDOS), by=ME_REFERENCIA]
+filtered_df %<>% group_by(ME_REFERENCIA) %>% summarise(saldo_fundos = max(Media_Saldo))
+
+ggplot(filtered_df)
+
+hchart(filtered_df, "line", x = filtered_df$ME_REFERENCIA, y = filtered_df$saldo_fundos)

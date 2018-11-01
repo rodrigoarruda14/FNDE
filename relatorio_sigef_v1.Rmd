@@ -21,6 +21,9 @@ library(forecast)
 library(treemap)
 library(dplyr)
 library(arules)
+library(ggiraph)
+library(ggplot2)
+library(data.table)
 
 thm <- hc_theme(colors = c("#1a6ecc", "#434348", "#90ed7d"),
                 chart = list(backgroundColor = "transparent",
@@ -34,18 +37,7 @@ extracao_cgaux <- read_delim("~/extracao_cgaux.csv",
                              trim_ws = TRUE)
 
 uf <- extracao_cgaux %>% distinct(SG_UF)
-
- # database <- reactive({
- # 
- #   df <- extracao_cgaux %>% 
- #           filter(SG_UF==input$UF & ME_REFERENCIA >= '2013-01-01') %>% 
- #           group_by(ME_REFERENCIA) %>% 
- #           summarise(saldo_fundos=sum(VL_SALDO_FUNDOS)) %>% select(saldo_fundos) %>%
- #           ts(start = 2013, end = c(2018, 9), frequency = 12)
- #   
- #   return(df)
- #          
- #  })
+programas <- extracao_cgaux %>% distinct(DS_PROGRAMA_FNDE)
 
 
 ```
@@ -57,7 +49,20 @@ Sidebar {.sidebar}
 
 # Define inputs
 
-selectInput(inputId = 'UF', choices = uf, label = 'Selecione o Estado:', selected = "PE")
+selectInput(inputId = 'UF', choices = uf, label = 'Selecione o Estado:')
+
+filtered_df <- reactive({
+      	
+df <- extracao_cgaux[extracao_cgaux$SG_UF == input$UF & extracao_cgaux$ME_REFERENCIA >= '2013-01-01', ]
+
+df <- data.table(df)
+df[, Media_Saldo:=mean(VL_SALDO_FUNDOS), by=ME_REFERENCIA]
+df %<>% group_by(ME_REFERENCIA) %>% summarise(saldo_fundos = max(Media_saldo)) 
+#%>% select(saldo_fundos) %>%  ts(start = 2013, end = c(2018, 9), frequency = 12)
+return(df)
+})
+
+selectInput(inputId = 'Programas', choices = programas, label = 'Selecione o Programa:')
 
 ```
 
@@ -67,22 +72,6 @@ Relatório
 
 Column {data-width=600}
 -----------------------------------------------------------------------
-
-### Saldo dos Fundos
-
-```{r Render Graphics}
-
-renderHighchart({
-   
-   x <- extracao_cgaux %>% filter(SG_UF==input$UF & ME_REFERENCIA >= '2013-01-01') %>% 
-           group_by(ME_REFERENCIA) %>% 
-           summarise(saldo_fundos=sum(VL_SALDO_FUNDOS)) %>% select(saldo_fundos) 
-   
-   x %>% ts(start = 2013, end = c(2018, 9), frequency = 12) %>%
-      hchart() %>% hc_add_theme(thm)
- })  
-
-```
 
 ### Saldo por Estado
 
@@ -108,6 +97,29 @@ hcmap("countries/br/br-all", data = saldo_estados, value = "value",
   hc_add_theme(thm)
 
 ```
+
+### Saldo dos Fundos
+
+```{r Render Graphics}
+
+ # AirPassengers %>% 
+ #   forecast(level = 90) %>% 
+ #   hchart() %>% 
+ #   hc_add_theme(thm)
+
+### Chart
+ 
+  plot <- reactive({
+      ggplot(filtered_df(), aes(ME_REFERENCIA, saldo_fundos)) +
+    geom_point_interactive()
+  })
+  
+   renderggiraph({
+        ggiraph(code = {print(plot())}) 
+   })
+
+```
+
 
 Column {.tabset data-width=400}
 -----------------------------------------------------------------------
@@ -154,4 +166,16 @@ dfitems %>%
   hc_add_theme(thm) %>% 
   hc_chart(type = "bar")
   
+```
+
+Mapa
+=======================================================================
+
+```{r}
+
+library(leaflet)
+leaflet() %>%
+  addTiles() %>%
+  addMarkers(lng= -47.9292, lat=-15.7801, popup="governo de Brasilia")
+
 ```
