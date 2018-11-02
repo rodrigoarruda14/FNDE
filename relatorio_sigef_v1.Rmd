@@ -21,23 +21,18 @@ library(forecast)
 library(treemap)
 library(dplyr)
 library(arules)
-library(ggiraph)
 library(ggplot2)
 library(data.table)
 
 thm <- hc_theme(colors = c("#1a6ecc", "#434348", "#90ed7d"),
                 chart = list(backgroundColor = "transparent",
-                style = list(fontFamily = 'Tangerine')),
+                style = list(fontFamily = 'Source Sans Pro')),
                 xAxis = list(gridLineWidth = 1))
 
 
-extracao_cgaux <- read_delim("~/extracao_cgaux.csv", 
-                             ";", escape_double = FALSE, col_types = cols(NU_PROCESSO = col_character()), 
-                             locale = locale(encoding = "latin1"), 
-                             trim_ws = TRUE)
+extracao_cgaux <- read_delim("C:/Users/Rodrigo/Downloads/extracao_cgaux.csv",   ";", escape_double = FALSE, col_types = cols(NU_CNPJ = col_character(),         NU_PROCESSO = col_character()), locale = locale(encoding = "latin1"),     trim_ws = TRUE)
 
-uf <- extracao_cgaux %>% distinct(SG_UF)
-programas <- extracao_cgaux %>% distinct(DS_PROGRAMA_FNDE)
+extracao_cgaux$ME_REFERENCIA <- as.Date(extracao_cgaux$ME_REFERENCIA, "%d/%m/%Y")
 
 
 ```
@@ -47,22 +42,40 @@ Sidebar {.sidebar}
 
 ```{r Sidebar}
 
-# Define inputs
+# Input Estado
 
-selectInput(inputId = 'UF', choices = uf, label = 'Selecione o Estado:')
+selectInput(inputId = 'UF', choices = unique(extracao_cgaux$SG_UF), label = 'Selecione o Estado:', selected = "Todos")
 
-filtered_df <- reactive({
-      	
-df <- extracao_cgaux[extracao_cgaux$SG_UF == input$UF & extracao_cgaux$ME_REFERENCIA >= '2013-01-01', ]
-
-df <- data.table(df)
-df[, Media_Saldo:=mean(VL_SALDO_FUNDOS), by=ME_REFERENCIA]
-df %<>% group_by(ME_REFERENCIA) %>% summarise(saldo_fundos = max(Media_saldo)) 
-#%>% select(saldo_fundos) %>%  ts(start = 2013, end = c(2018, 9), frequency = 12)
-return(df)
+escolha.uf = reactive({
+  
+  if (input$UF=="Todos"){
+  extracao_cgaux
+  }else{
+  extracao_cgaux %>% filter(SG_UF==input$UF)}
+  
 })
 
-selectInput(inputId = 'Programas', choices = programas, label = 'Selecione o Programa:')
+# Input Programa
+
+renderUI({
+  selectInput("Programa", label = "Selecione o Programa:",
+        choices = escolha.uf()$DS_PROGRAMA_FNDE, selected = "EDUCAÇÃO INFANTIL - APOIO SUPLEMENTAR")
+  })
+
+# Input Saldo
+selectInput(inputId = 'saldo', label = 'Selecione o Saldo a ser Visualisado no Mapa:', choices = c("VL_SALDO_CONTA", "VL_SALDO_FUNDOS","VL_SALDO_POUPANCA","VL_SALDO_RDB"), selected = "VL_SALDO_CONTA")
+
+escolha.saldo = reactive({
+  if (input$saldo=="VL_SALDO_CONTA"){
+  extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_CONTA)
+  } else if(input$saldo=="VL_SALDO_FUNDOS"){
+  extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_FUNDOS)
+  } else if(input$saldo=="VL_SALDO_POUPANCA"){
+  extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_POUPANCA) 
+  } else{
+  extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_RDB) 
+  }
+})
 
 ```
 
@@ -77,17 +90,27 @@ Column {data-width=600}
 
 ```{r}
 
-saldo_estados <- extracao_cgaux %>% group_by(SG_UF) %>% summarise(saldo_conta = sum(VL_SALDO_FUNDOS))
+# saldo_estados = reactive({
+#   
+#   df <- extracao_cgaux %>% filter(DS_PROGRAMA_FNDE==input$programa) %>% group_by(SG_UF) %>% summarise(saldo_conta = sum(VL_SALDO_FUNDOS)) 
+#   names(df) <- c("code", "value")
+#   
+# })
 
-names(saldo_estados) <- c("code", "value")
 
+# saldo_estados <- extracao_cgaux %>% group_by(SG_UF) %>% summarise(saldo_conta = sum(VL_SALDO_FUNDOS))
+
+#names(saldo_estados) <- c("code", "value")
+
+renderHighchart({
+  
 n <- 4
 colstops <- data.frame(
   q = 0:n/n,
   c = substring(viridis(n + 1), 0, 7)) %>%
   list_parse2()
 
-hcmap("countries/br/br-all", data = saldo_estados, value = "value",
+hcmap("countries/br/br-all", data = escolha.saldo(), value = "value",
       joinBy = c("hc-a2", "code"), 
       dataLabels = list(enabled = TRUE, format = '{point.code}'),
       tooltip = list(valuePrefix = "R$")) %>%
@@ -96,27 +119,24 @@ hcmap("countries/br/br-all", data = saldo_estados, value = "value",
   hc_mapNavigation(enabled = TRUE) %>%
   hc_add_theme(thm)
 
+})
 ```
 
 ### Saldo dos Fundos
 
 ```{r Render Graphics}
 
- # AirPassengers %>% 
- #   forecast(level = 90) %>% 
- #   hchart() %>% 
- #   hc_add_theme(thm)
-
-### Chart
+ df.saldo = reactive({
  
-  plot <- reactive({
-      ggplot(filtered_df(), aes(ME_REFERENCIA, saldo_fundos)) +
-    geom_point_interactive()
-  })
+   x <- extracao_cgaux %>% filter(SG_UF == input$UF & ME_REFERENCIA >= '2013-01-01') %>% group_by(ME_REFERENCIA) %>% summarise(total_saldo=sum(VL_SALDO_FUNDOS)) %>% select(total_saldo) %>% ts(start = 2013, end = c(2018, 9), frequency = 12)
   
-   renderggiraph({
-        ggiraph(code = {print(plot())}) 
-   })
+ })  
+
+renderHighchart({
+
+  hchart(df.saldo()) %>% hc_add_theme(thm)
+  
+})
 
 ```
 

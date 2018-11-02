@@ -107,3 +107,14 @@ filtered_df %<>% group_by(ME_REFERENCIA) %>% summarise(saldo_fundos = max(Media_
 ggplot(filtered_df)
 
 hchart(filtered_df, "line", x = filtered_df$ME_REFERENCIA, y = filtered_df$saldo_fundos)
+
+
+
+extracao_cgaux$ME_REFERENCIA <- as.Date(extracao_cgaux$ME_REFERENCIA, "%d/%m/%Y")
+
+df_saldo <- extracao_cgaux %>% 
+  filter(SG_UF== "PE" & DS_PROGRAMA_FNDE=="EDUCAÇÃO INFANTIL - APOIO SUPLEMENTAR") %>% 
+  group_by(ME_REFERENCIA) %>% 
+  summarise(total_saldo=sum(VL_SALDO_FUNDOS))
+
+hchart(df_saldo)
