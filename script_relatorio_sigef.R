@@ -29,10 +29,24 @@ extracao_cgaux$ME_REFERENCIA <- as.Date(extracao_cgaux$ME_REFERENCIA, "%d/%m/%Y"
 
 uf <- extracao_cgaux %>% distinct(SG_UF)
 
-saldo_estados <- extracao_cgaux %>% group_by(SG_UF) %>% 
-                 summarise(saldo_conta = sum(VL_SALDO_FUNDOS))
+saldo_estados <- extracao_cgaux %>% select(SG_UF,
+                                           ME_REFERENCIA,
+                                           VL_SALDO_CONTA, 
+                                           VL_SALDO_FUNDOS,
+                                           VL_SALDO_POUPANCA, 
+                                           VL_SALDO_RDB) %>%
+group_by(SG_UF, ME_REFERENCIA) %>% 
+                 summarise(saldo_1 = sum(VL_SALDO_CONTA),
+                           saldo_2 = sum(VL_SALDO_FUNDOS),
+                           saldo_3 = sum(VL_SALDO_POUPANCA),
+                           saldo_4 = sum(VL_SALDO_RDB)) %>%
+  filter(ME_REFERENCIA == '2018-09-01')
+
 
 names(saldo_estados) <- c("code", "value")
+
+mapdata <- get_data_from_map(download_map_data("countries/br/br-all"))
+glimpse(mapdata)
 
 ######################################
 ## Gráfico Brasil
@@ -44,7 +58,7 @@ colstops <- data.frame(
   c = substring(viridis(n + 1), 0, 7)) %>%
   list_parse2()
 
-hcmap("countries/br/br-all", data = saldo_estados, value = "value",
+hcmap(mapdata, data = saldo_estados, value = "value",
       joinBy = c("hc-a2", "code"), 
       dataLabels = list(enabled = TRUE, format = '{point.code}'),
       tooltip = list(valuePrefix = "R$")) %>%
@@ -118,3 +132,19 @@ df_saldo <- extracao_cgaux %>%
   summarise(total_saldo=sum(VL_SALDO_FUNDOS))
 
 hchart(df_saldo)
+
+x <- extracao_cgaux %>% 
+  filter(SG_UF == input$UF & ME_REFERENCIA >= '2013-01-01') %>% 
+  group_by(ME_REFERENCIA) %>% 
+  summarise(total_saldo=sum(VL_SALDO_FUNDOS)) %>% 
+  select(total_saldo) %>% ts(start = 2013, end = c(2018, 9), frequency = 12)
+
+
+extracao_cgaux %>% 
+  select(SG_UF, ME_REFERENCIA, VL_SALDO_CONTA, VL_SALDO_FUNDOS, VL_SALDO_POUPANCA, VL_SALDO_RDB) %>%
+  filter(lubridate::year(ME_REFERENCIA) >= 2018) %>% 
+  group_by(SG_UF, ME_REFERENCIA) %>% 
+  summarise(tot_saldo_conta=sum(VL_SALDO_CONTA),
+            tot_saldo_fundos=sum(VL_SALDO_FUNDOS),
+            tot_saldo_poup=sum(VL_SALDO_POUPANCA),
+            tot_saldo_rdb=sum(VL_SALDO_RDB)) %>% View()
