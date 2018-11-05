@@ -29,7 +29,7 @@ thm <- hc_theme(colors = c("#1a6ecc", "#434348", "#90ed7d"),
                 xAxis = list(gridLineWidth = 1))
 
 
-extracao_cgaux <- read_delim("C:/Users/Rodrigo/Downloads/extracao_cgaux.csv",   ";", escape_double = FALSE, col_types = cols(NU_CNPJ = col_character(),         NU_PROCESSO = col_character()), locale = locale(encoding = "latin1"),     trim_ws = TRUE)
+extracao_cgaux <- read_delim("C:/Users/08259760495/Documents/extracao_cgaux.csv",   ";", escape_double = FALSE, col_types = cols(NU_CNPJ = col_character(),         NU_PROCESSO = col_character()), locale = locale(encoding = "latin1"),     trim_ws = TRUE)
 
 extracao_cgaux$ME_REFERENCIA <- as.Date(extracao_cgaux$ME_REFERENCIA, "%d/%m/%Y")
 
@@ -238,10 +238,7 @@ Inputs {.sidebar data-width=300}
 
 # Input Calendar
 
-dateRangeInput(inputId="calendario", label="Selecione o Intervalo de Tempo", start = "2013-01-01", end = "2018-09-01", min = "2013-01-01",
-  max = "2018-09-01", format = "yyyy-mm", startview = "year",
-  weekstart = 0, language = "en", separator = " to ", width = NULL,
-  autoclose = TRUE)
+dateRangeInput(inputId="calendario", label="Selecione o Intervalo de Tempo", start = "2018-09", end = "2018-09", min = "2013-01", max = "2018-09", format = "yyyy-mm", startview = "year", language = "pt-BR", separator = " to ", width = NULL, autoclose = TRUE)
 
 escolha.data_tbl = reactive({
   
@@ -266,13 +263,13 @@ escolha.uf_tbl = reactive({
 # Input Programa
 
 renderUI({
-  selectInput("programa_tbl", label = "Selecione o Programa:",
+  checkboxGroupInput("programa_tbl", label = "Selecione o Programa:",
         choices = unique(escolha.uf_tbl()$DS_PROGRAMA_FNDE))
   })
 
 escolha.programa_tbl = reactive({
 
-  escolha.uf_tbl() %>% filter(DS_PROGRAMA_FNDE==input$programa_tbl)
+  escolha.uf_tbl() %>% filter(DS_PROGRAMA_FNDE %in% input$programa_tbl)
 
 })
 
@@ -280,11 +277,15 @@ escolha.programa_tbl = reactive({
 
 Column
 -----------------------------------------------------------------------
+
+### Tabela Programas
+
 ```{r}
 
+
 renderTable({
-  
-  escolha.uf_tbl() %>% group_by(SG_UF, ME_REFERENCIA, DS_PROGRAMA_FNDE) %>% summarise(vl_saldo_conta=sum(VL_SALDO_CONTA), vl_saldo_fundos=sum(VL_SALDO_FUNDOS), vl_saldo_poupanca=sum(VL_SALDO_POUPANCA), vl_saldo_rdb=sum(VL_SALDO_RDB))
-  
+
+escolha.programa_tbl() %>% mutate(DATA=as.character(ME_REFERENCIA)) %>% group_by(SG_UF, DATA, DS_PROGRAMA_FNDE) %>% summarise(vl_saldo_conta=sum(VL_SALDO_CONTA), vl_saldo_fundos=sum(VL_SALDO_FUNDOS), vl_saldo_poupanca=sum(VL_SALDO_POUPANCA), vl_saldo_rdb=sum(VL_SALDO_RDB)) %>% select(UF=SG_UF, DATA, PROGRAMA=DS_PROGRAMA_FNDE, SALDO_CONTA=vl_saldo_conta, SALDO_FUNDOS=vl_saldo_fundos, SALDO_POUPANCA=vl_saldo_poupanca, SALDO_RDB=vl_saldo_rdb)
+
 })
 ```

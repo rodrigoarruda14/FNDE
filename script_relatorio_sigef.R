@@ -148,3 +148,8 @@ extracao_cgaux %>%
             tot_saldo_fundos=sum(VL_SALDO_FUNDOS),
             tot_saldo_poup=sum(VL_SALDO_POUPANCA),
             tot_saldo_rdb=sum(VL_SALDO_RDB)) %>% View()
+
+
+extracao_cgaux %>% filter(ME_REFERENCIA >= "2018-01-01") %>%
+  group_by(SG_UF, ME_REFERENCIA, DS_PROGRAMA_FNDE) %>% 
+  summarise(vl_saldo_conta=sum(VL_SALDO_CONTA), vl_saldo_fundos=sum(VL_SALDO_FUNDOS), vl_saldo_poupanca=sum(VL_SALDO_POUPANCA), vl_saldo_rdb=sum(VL_SALDO_RDB))
