@@ -29,7 +29,7 @@ thm <- hc_theme(colors = c("#1a6ecc", "#434348", "#90ed7d"),
                 xAxis = list(gridLineWidth = 1))
 
 
-extracao_cgaux <- read_delim("C:/Users/08259760495/Documents/extracao_cgaux.csv",   ";", escape_double = FALSE, col_types = cols(NU_CNPJ = col_character(),         NU_PROCESSO = col_character()), locale = locale(encoding = "latin1"),     trim_ws = TRUE)
+extracao_cgaux <- read_delim("extracao_cgaux.csv", ";", escape_double = FALSE, col_types = cols(NU_CNPJ = col_character(),         NU_PROCESSO = col_character()), locale = locale(encoding = "latin1"),     trim_ws = TRUE)
 
 extracao_cgaux$ME_REFERENCIA <- as.Date(extracao_cgaux$ME_REFERENCIA, "%d/%m/%Y")
 
@@ -46,20 +46,6 @@ Inputs {.sidebar data-width=300}
 
 ```{r Sidebar}
 
-# # Input Saldo
-# selectInput(inputId = 'saldo', label = 'Selecione o Saldo a ser Visualisado no Mapa:', choices = c("VL_SALDO_CONTA", "VL_SALDO_FUNDOS","VL_SALDO_POUPANCA","VL_SALDO_RDB"), selected = "VL_SALDO_CONTA")
-# 
-#  escolha.saldo = reactive({
-#    if (input$saldo=="VL_SALDO_CONTA"){
-#    extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_CONTA)
-#    } else if(input$saldo=="VL_SALDO_FUNDOS"){
-#    extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_FUNDOS)
-#    } else if(input$saldo=="VL_SALDO_POUPANCA"){
-#    extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_POUPANCA)
-#    } else{
-#    extracao_cgaux %>% select(code=SG_UF, value=VL_SALDO_RDB)
-#    }
-#  })
 
 # Input Estado
 

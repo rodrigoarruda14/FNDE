@@ -153,3 +153,12 @@ extracao_cgaux %>%
 extracao_cgaux %>% filter(ME_REFERENCIA >= "2018-01-01") %>%
   group_by(SG_UF, ME_REFERENCIA, DS_PROGRAMA_FNDE) %>% 
   summarise(vl_saldo_conta=sum(VL_SALDO_CONTA), vl_saldo_fundos=sum(VL_SALDO_FUNDOS), vl_saldo_poupanca=sum(VL_SALDO_POUPANCA), vl_saldo_rdb=sum(VL_SALDO_RDB))
+
+
+install.packages('rsconnect')
+rsconnect::setAccountInfo(name='rodrigoarruda14',
+                          token='F5E3D2187938A7C4F356F537BAD7EEED',
+                          secret='XADXQrcDcKBzU24g2JHMYyJrr32RN98IY3d0OffU')
+
+library(rsconnect)
+rsconnect::deployApp()
