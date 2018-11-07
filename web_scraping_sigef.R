@@ -80,9 +80,15 @@ for(j in sigla_programa)
   
 }
 
+remDr$close()
+driver$server$stop()
+driver$server$process
+
+teste <- iconv(corpo_email, "UTF-8", "latin1")
+
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
 outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; fabio.gomes@fnde.gov.br"
 outMail[["subject"]] = subject
-outMail[["body"]] = corpo_email
+outMail[["body"]] = teste
 outMail$Send()
