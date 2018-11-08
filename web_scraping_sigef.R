@@ -92,3 +92,11 @@ outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; fabio.gomes@fnde.gov.br"
 outMail[["subject"]] = subject
 outMail[["body"]] = teste
 outMail$Send()
+
+
+## Schedule
+# taskscheduler_create(taskname = "Web_Scraping_Diario_Oficial_da_Uniao_SIGEF", 
+#                      rscript = "C:/Users/08259760495/Documents/Projetos - Git/FNDE/web_scraping_sigef.R", 
+#                      schedule = "WEEKLY", starttime = "06:30", days = c("MON", "TUE", "WED", "THU", "FRI"))
+
+

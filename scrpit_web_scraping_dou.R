@@ -1,5 +1,5 @@
 
-## Web Scraping Diario Oficial da União ##
+## Web Scraping Diario Oficial da Uni?o ##
 
 
 library(RSelenium)
@@ -9,7 +9,7 @@ library(magrittr)
 library(taskscheduleR)
 
 # Titulo do Email
-subject <- paste0("Diário Oficial da União - ", format(Sys.Date(), "%d %B %Y"))
+subject <- paste0("DiÃ¡rio Oficial da UniÃ£o - ", format(Sys.Date(), "%d %B %Y"))
 
 driver<- rsDriver(browser=c("firefox"))
 remDr <- driver[["client"]]
@@ -24,15 +24,15 @@ wordkey<-remDr$findElement(using = 'css', "#input-search")
 wordkey$sendKeysToElement(list("fies"))
 
 
-## Pressiona botão de pesquisa
+## Pressiona botÃ£o de pesquisa
 press_button <- remDr$findElement(using = 'css', ".btn span")
 press_button$clickElement()
 
 
-## Checa se há resultados disponíveis
+## Checa se hÃ¡ resultados disponÃ­veis
 if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
 {
-  text_body <- paste0(subject, "\n\nNão foram encontrados resultados que contenham as palavras-chave: fies.")
+  text_body <- paste0(subject, "\n\nNÃ£o foram encontrados resultados que contenham as palavras-chave: fies.")
   
   ## Check para quantidade de resultados
 } else if(has_error(remDr$findElement(using = 'css', ".search-results"))==FALSE)
@@ -42,7 +42,7 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
                                   stop  = nchar(qtd_results$getElementText()[[1]])-1, 
                                   start = nchar(qtd_results$getElementText()[[1]])-1))
   
-  text_body <- paste0(subject, "\n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n")
+  text_body <- paste0(subject, "\n\nPortarias, ResoluÃ§Ãµes publicadas, referentes ao Fundo Nacional de Desenvolvimento da EducaÃ§Ã£o/ FIES/MEC\n\n")
   links <- NULL
   
   # Para quando houver mais de 1 resultado
@@ -82,7 +82,7 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
   
   # Corpo do Email
   
-  body <- "\n\nPortarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação/ FIES/MEC\n\n"
+  body <- "\n\nPortarias, ResoluÃ§Ãµes publicadas, referentes ao Fundo Nacional de Desenvolvimento da EducaÃ§Ã£o/ FIES/MEC\n\n"
   text_body <- paste0(subject, body,
                       "* ", titulo_materia, "\n\n", corpo_materia, "\n\n", "Link - ", links[[1]])
   
@@ -91,17 +91,18 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
 
 ## Enviando Email
 
-#text_body <- iconv(text_body, "UTF-8", "latin1")
+text_body <- iconv(text_body, "UTF-8", "latin1")
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
-outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@fnde.gov.br"
+outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@fnde.gov.br; mailto:fabio.gomes@fnde.gov.br"
 outMail[["subject"]] = subject
 outMail[["body"]] = text_body
 outMail$Send()
 
+
 ## Schedule
-#taskscheduler_create(taskname = "Web_Scraping_Diario_Oficial_da_Uniao", 
-#                     rscript = "C:/Users/08259760495/Documents/Web Scraping/Web Scraping - DOU/scrpit_web_scraping_dou.R", 
-#                     schedule = "WEEKLY", starttime = "06:00", days = c("MON", "TUE", "WED", "THU", "FRI"))
+# taskscheduler_create(taskname = "Web_Scraping_Diario_Oficial_da_Uniao", 
+#                      rscript = "C:/Users/08259760495/Documents/Projetos - Git/FNDE/scrpit_web_scraping_dou.R", 
+#                      schedule = "WEEKLY", starttime = "06:00", days = c("MON", "TUE", "WED", "THU", "FRI"))
 
