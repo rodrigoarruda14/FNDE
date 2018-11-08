@@ -28,7 +28,7 @@ remDr <- driver[["client"]]
 remDr$navigate("http://pesquisa.in.gov.br/imprensa/core/start.action")
 
 ## Busca palavra chave
-while(has_error(remDr$findElement(using = 'css', "#input-search"))==TRUE)
+while(has_error(remDr$findElement(using = 'css', "#txtPesquisa_avancada"))==TRUE)
 {
   remDr$refresh()
   Sys.sleep(sample(1:60))
