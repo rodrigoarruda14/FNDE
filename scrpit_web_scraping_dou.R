@@ -95,7 +95,7 @@ text_body <- iconv(text_body, "UTF-8", "latin1")
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
-outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@fnde.gov.br; mailto:fabio.gomes@fnde.gov.br"
+outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@fnde.gov.br; fabio.gomes@fnde.gov.br"
 outMail[["subject"]] = subject
 outMail[["body"]] = text_body
 outMail$Send()
