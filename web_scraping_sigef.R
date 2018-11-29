@@ -6,14 +6,15 @@ library(RDCOMClient)
 library(magrittr)
 library(taskscheduleR)
 
+
 nome_programa <- c("Programa de Fomento às Escolas de Ensino Médio em Tempo Integral",
                    "Programa Brasil Alfabetizado",
                    "Programa de Apoio aos Sistemas de Ensino para Atendimento à Educação de Jovens e Adultos",
-                   "Programa Nacional de Inclusão de Jovens",
-                   "Programa Nacional de Inclusão de Jovens",
+                   "Programa Nacional de Inclusão de Jovens", 
+                   "Projovem",
                    "Programa Nacional de Acesso ao Ensino Técnico e Emprego",
-                   "apoio a novas turmas de Educação Infantil",
-                   "apoio a novos estabelecimentos de Educação Infantil")
+                   "Apoio a novas turmas de Educação Infantil",
+                   "Apoio a novos estabelecimentos de Educação Infantil")
 
 sigla_programa <- c("EMTI", "PBA", "PEJA", "Projovem Urbano", 
                     "Projovem Campo - Saberes da Terra", "Pronatec",
@@ -38,7 +39,7 @@ while(has_error(remDr$findElement(using = 'css', "#txtPesquisa_avancada"))==TRUE
   Sys.sleep(sample(1:60))
 }
 
-for(j in sigla_programa)
+for(j in nome_programa)
 {
 
   remDr$navigate("http://pesquisa.in.gov.br/imprensa/core/start.action")
@@ -51,7 +52,7 @@ for(j in sigla_programa)
   press_button <- remDr$findElement(using = 'css', "#pesquisa02_0")
   press_button$clickElement()
   
-  Sys.sleep(sample(1:2))
+  Sys.sleep(sample(1:3))
   
   msg <- "Nenhum item encontrado para a pesquisa solicitada."
   
@@ -94,7 +95,7 @@ OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
 outMail[["To"]] = "rodrigo.arruda@fnde.gov.br;fabio.gomes@fnde.gov.br; eriane.dantas@fnde.gov.br; ana.barreto@fnde.gov.br; eliete.oliveira@fnde.gov.br; ana.botelho@fnde.gov.br; gerson.flores@fnde.gov.br"
 outMail[["subject"]] = subject
-outMail[["body"]] = corpo_email
+outMail[["body"]] = teste
 outMail$Send()
 
 

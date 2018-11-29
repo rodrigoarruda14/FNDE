@@ -266,10 +266,6 @@ train$resposta <- as.factor(train$resposta)
 
 ##------------ Ajuste do Modelo ------------##
 
-#Eu tirei: Deficiente
-#p-valor tirou:Sexo+ estadocivil_cat  +  idade_cat + curso_cat+
-
-
 lrcompleto= glm(resposta ~ qtdsemestre_cat + rendafamiliarmensalbruta_cat + 
                   rendapessoalmensalbruta_cat + valorfinaciados_cat + 
                   valorrendafiadoress_cat + idade_cat + taxadejuros_cat + 
@@ -293,7 +289,6 @@ lrcompleto = glm(resposta ~ rendafamiliarmensalbruta_cat + rendapessoalmensalbru
 
 ##------------ Validacao do Modelo ------------##
 
-#Como que interpreta???
 varImp(lrcompleto)
 
 p = predict(lrcompleto, test, type = "response")
@@ -317,20 +312,6 @@ y <- y[is.na(x)=="FALSE"]
 ks.test(x,y,alternative = "two.sided")
 
 
-#maxima verossimilhança
-#Quanto maior melhor
-#logLik(lrcompleto)
-#qUANTO MENOR MELHOR.
-#extractAIC(lrcompleto)
-#Razão de chance
-#exp(cbind(OR=coef(lrcompleto),confint(lrcompleto)))
-#Desviancia
-#deviance(lrcompleto)   # -2xloglik pois no modelo binomial com ni=1, l_saturado = 1 => D=2xloglik
-#summary( residuals(lrcompleto, type = "deviance") )
-#Coefieciente de person
-#sum(residuals(lrcompleto, type = "pearson")^2)   # X2p
-
-
 test <- test %>% mutate(p_30 = ifelse((p <= 0.35),0, 
                                ifelse((p > 0.35) ,1, "erro")))
 
@@ -340,103 +321,6 @@ confusionMatrix(table(test$p_30,test$resposta), positive = "1")
 
 100*prop.table(table(test$p_30))
 100*prop.table(table(test$resposta))
-
-
-
-
-####################################
-
-
-
-
-
-View(head(base_cat))
-
-## Bivariadas
-
-table(base_cat$Sexo, base_cat$resposta) %>% prop.table(1)
-table(base_cat$CursouEnsinoMedioEscolaPublica, base_cat$resposta) %>% prop.table(1)
-table(base_cat$Deficiente, base_cat$resposta) %>% prop.table(1)
-table(base_cat$EstadoCivil, base_cat$resposta) %>% prop.table(1)
-table(base_cat$Prouni, base_cat$resposta) %>% prop.table(1)
-table(base_cat$SituacaoInscricao, base_cat$resposta) %>% prop.table(1)
-table(base_cat$NomeTurno, base_cat$resposta) %>% prop.table(1)
-table(base_cat$UfIES, base_cat$resposta) %>% prop.table(1)
-table(base_cat$TipoGarantia, base_cat$resposta) %>% prop.table(1)
-table(base_cat$TaxaDeJuros, base_cat$resposta) %>% prop.table(1)
-table(base_cat$Regiao_UF, base_cat$resposta) %>% prop.table(1)
-table(base_cat$Porte, base_cat$resposta) %>% prop.table(1)
-table(base_cat$CodCurso, base_cat$resposta) %>% prop.table(1)
-table(base_cat$QtdeSemestreContratado, base_cat$resposta) %>% prop.table(1)
-
-
-
-base_cat %<>% mutate(qtdsemestre_cat = ifelse(QtdeSemestreContratado >= 0 & QtdeSemestreContratado <= 9,"a", "b"),
-                     
-                     rendafamiliarmensalbruta_cat = ifelse((RendaFamiliarMensalBruta <= 1000 ),"a", 
-                                                           ifelse((RendaFamiliarMensalBruta > 1000 & RendaFamiliarMensalBruta <= 2000),"b",
-                                                                  ifelse((RendaFamiliarMensalBruta > 2000),"c","0"))),
-                     
-                     rendapessoalmensalbruta_cat = ifelse((RendaPessoalMensalBruta <= 2000 ),"a", 
-                                                          ifelse((RendaPessoalMensalBruta >  2000 & RendaPessoalMensalBruta <= 3000),"b",
-                                                                 ifelse((RendaPessoalMensalBruta >  3000),"c","0"))),
-                     
-                     valorfinaciados_cat = ifelse((ValorFinanciadoSISFIES <= 80000 ),"a", 
-                                                  ifelse((ValorFinanciadoSISFIES > 80000),"b","0")),
-                     
-                     valorrendafiadoress_cat = ifelse(is.na(ValorRendaComprovadaFiadores),"a",
-                                                      ifelse(ValorRendaComprovadaFiadores <= 1500,"b", 
-                                                             ifelse((ValorRendaComprovadaFiadores > 1500 & ValorRendaComprovadaFiadores <= 2500),"c",
-                                                                    ifelse((ValorRendaComprovadaFiadores > 2500),"d", "e")))),
-                     
-                     idade_cat = ifelse((idade <= 20 ),"b", 
-                                        ifelse((idade > 20 ),"a","0")),
-                     
-                     taxadejuros_cat = ifelse(TaxaDeJuros == "6.5","b", "a"),
-                     
-                     garantia_cat = ifelse(TipoGarantia == 'FIANCA CONVENCIONAL+FGEDUC', "d",
-                                           ifelse(TipoGarantia %in% c("","FIAN? CONVENCIONAL"),"c",
-                                                  ifelse(TipoGarantia == "SEM FIAN?","b", "a"))),
-                     
-                     turno_cat = ifelse(NomeTurno %in% c("INTEGRAL"),"b","a"),
-                     
-                     ufies_cat = ifelse(Regiao_UF == "Sul", "c",
-                                        ifelse(Regiao_UF == "Norte","a", "b")),       
-                     
-                     estadocivil_cat = ifelse(EstadoCivil == "Solteiro", "b", "a"),
-                     
-                     curso_cat = ifelse(CodCurso %in% c("5","6"),"c", 
-                                        ifelse(CodCurso %in% c("4","7"),"b", "a")),
-                     
-                     percentual_cat = ifelse((PercentualFinanciado == 100 ),"a", "b" ),
-                     
-                     porte_cat = ifelse(Porte == "GM", "GM", "PMG"),
-                     
-                     escola_cat = ifelse(CursouEnsinoMedioEscolaPublica == "N", "b", "a"),
-                     
-                     deficiente_cat = ifelse(Deficiente == "N         ", "a", "b")
-                     
-)
-
-
-table(base_cat$qtdsemestre_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$rendafamiliarmensalbruta_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$rendapessoalmensalbruta_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$valorfinaciados_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$valorrendafiadoress_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$idade_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$taxadejuros_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$garantia_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$turno_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$ufies_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$estadocivil_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$curso_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$percentual_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$porte_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$escola_cat, base_cat$resposta) %>% prop.table(1)
-table(base_cat$deficiente_cat, base_cat$resposta) %>% prop.table(1)
-
-
 
 
 
