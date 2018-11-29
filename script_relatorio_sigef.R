@@ -164,3 +164,49 @@ library(rsconnect)
 rsconnect::deployApp()
 
 
+#############################################
+#Usando pacote ROracle
+library(ROracle)
+#############################################
+
+drv <- dbDriver("Oracle")
+# Create the connection string
+host <- "exafnde1-scan2.fnde.gov.br"
+port <- 1521
+#Digite o usuario
+nome_usuario <- "MN_CGAUX_FNDE"
+#Digite a senha aqui
+senha<-"fnde_mn_cgaux"
+
+#Apenas execute as linhas abaixo para estabelecer a conexao
+
+svc <- "berilo.fnde.gov.br"
+connect.string <- paste("(DESCRIPTION=","(ADDRESS=(PROTOCOL=tcp)(HOST=", host, ")(PORT=", port, "))","(CONNECT_DATA=(SERVICE_NAME=", svc, ")))", sep = "")
+con <- dbConnect(drv, username = nome_usuario, password = senha, dbname = connect.string)
+
+consulta<-"SELECT sc.*, 
+cc.co_programa_fnde, 
+pf.ds_programa_fnde, 
+e.no_razao_social,
+e.sg_uf, 
+scc.no_st_conta,
+SUBSTR(corp_fnde.mascara_processo_fc (sc.nu_processo), 1, 30) nu_processo_mask
+FROM sigef_fnde.a_saldo_conta_corrente@DBL_MNCGAUX_DG sc,
+sigef_fnde.s_conta_corrente@DBL_MNCGAUX_DG cc,
+sigef_fnde.s_programa_fnde_vinculado@DBL_MNCGAUX_DG pv,
+sigef_fnde.s_situacao_conta@DBL_MNCGAUX_DG scc,
+corp_fnde.s_programa_fnde pf,
+corp_fnde.s_entidade e
+WHERE sc.nu_cnpj = cc.nu_identificador
+AND sc.nu_agencia = cc.nu_agencia
+AND sc.nu_banco = cc.nu_banco
+AND sc.nu_conta_corrente = cc.nu_conta_corrente
+AND cc.co_programa_fnde = pv.co_programa_fnde_vinculado
+AND cc.co_programa_fnde = pf.co_programa_fnde
+AND cc.nu_seq_entidade = e.nu_seq_entidade
+AND cc.co_situacao_conta = scc.co_st_conta
+AND sc.nu_banco = '001'
+--AND sc.me_referencia = '09/2018'
+AND pv.co_programa_fnde IN ('TI')"
+
+resultados<-dbGetQuery(con,consulta)
