@@ -11,12 +11,16 @@ nome_programa <- c("Programa de Fomento às Escolas de Ensino Médio em Tempo In
                    "Programa de Apoio aos Sistemas de Ensino para Atendimento à Educação de Jovens e Adultos",
                    "Programa Nacional de Inclusão de Jovens",
                    "Programa Nacional de Inclusão de Jovens",
-                   "Programa Nacional de Acesso ao Ensino Técnico e Emprego")
+                   "Programa Nacional de Acesso ao Ensino Técnico e Emprego",
+                   "apoio a novas turmas de Educação Infantil",
+                   "apoio a novos estabelecimentos de Educação Infantil")
 
 sigla_programa <- c("EMTI", "PBA", "PEJA", "Projovem Urbano", 
-                    "Projovem Campo - Saberes da Terra", "Pronatec")
+                    "Projovem Campo - Saberes da Terra", "Pronatec",
+                    "apoio a novas turmas de Educação Infantil",
+                    "apoio a novos estabelecimentos de Educação Infantil")
 
-publico_programa <- c("ensino medio", rep("jovens e adultos", 4), "educação profissional")
+publico_programa <- c("ensino medio", rep("jovens e adultos", 4), "educação profissional", rep("educação infantil", 2))
 
 df_programas <- data.frame(nome_programa, sigla_programa, publico_programa)
 
@@ -90,7 +94,7 @@ OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
 outMail[["To"]] = "rodrigo.arruda@fnde.gov.br;fabio.gomes@fnde.gov.br; eriane.dantas@fnde.gov.br; ana.barreto@fnde.gov.br; eliete.oliveira@fnde.gov.br; ana.botelho@fnde.gov.br; gerson.flores@fnde.gov.br"
 outMail[["subject"]] = subject
-outMail[["body"]] = teste
+outMail[["body"]] = corpo_email
 outMail$Send()
 
 

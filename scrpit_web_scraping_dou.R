@@ -1,5 +1,5 @@
 
-## Web Scraping Diario Oficial da Uni?o ##
+## Web Scraping Diario Oficial da União ##
 
 
 library(RSelenium)
@@ -88,6 +88,9 @@ if(has_error(remDr$findElement(using = 'css', "tr:nth-child(1) a"))==TRUE)
   
 }
 
+remDr$close()
+driver$server$stop()
+driver$server$process
 
 ## Enviando Email
 
@@ -95,9 +98,11 @@ text_body <- iconv(text_body, "UTF-8", "latin1")
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
-outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@fnde.gov.br; fabio.gomes@fnde.gov.br"
+outMail[["To"]] = "rodrigo.arruda@fnde.gov.br; cinara.bessa@fnde.gov.br; fabio.gomes@fnde.gov.br;
+                   givanildo.maciel@fnde.gov.br; thais.sousa@fnde.gov.br"
 outMail[["subject"]] = subject
 outMail[["body"]] = text_body
+
 outMail$Send()
 
 
@@ -106,3 +111,8 @@ outMail$Send()
 #                      rscript = "C:/Users/08259760495/Documents/Projetos - Git/FNDE/scrpit_web_scraping_dou.R", 
 #                      schedule = "WEEKLY", starttime = "06:00", days = c("MON", "TUE", "WED", "THU", "FRI"))
 
+# deborah.mateus@fnde.gov.br; leopoldo.alves@fnde.gov.br; rafael.tavares@fnde.gov.br;
+# yves.sobral@fnde.gov.br; DACOF@fnde.gov.br; extrajudicialfies@fnde.gov.br;
+# larissa.rocha@fnde.gov.br; 
+# pedro.pedrosa@fnde.gov.br; viviane.monteiro@fnde.gov.br; annelise.mattos@fnde.gov.br;
+# andre.paro@fnde.gov.br; denise.rezende@fnde.gov.br
