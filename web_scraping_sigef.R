@@ -16,14 +16,6 @@ nome_programa <- c("Programa de Fomento às Escolas de Ensino Médio em Tempo In
                    "Apoio a novas turmas de Educação Infantil",
                    "Apoio a novos estabelecimentos de Educação Infantil")
 
-sigla_programa <- c("EMTI", "PBA", "PEJA", "Projovem Urbano", 
-                    "Projovem Campo - Saberes da Terra", "Pronatec",
-                    "apoio a novas turmas de Educação Infantil",
-                    "apoio a novos estabelecimentos de Educação Infantil")
-
-publico_programa <- c("ensino medio", rep("jovens e adultos", 4), "educação profissional", rep("educação infantil", 2))
-
-df_programas <- data.frame(nome_programa, sigla_programa, publico_programa)
 
 subject <- paste0("Diário Oficial da União - ", format(Sys.Date(), "%d %B %Y"))
 corpo_email <- "Portarias, Resoluções publicadas, referentes ao Fundo Nacional de Desenvolvimento da Educação\n"
@@ -36,7 +28,7 @@ remDr$navigate("http://pesquisa.in.gov.br/imprensa/core/start.action")
 while(has_error(remDr$findElement(using = 'css', "#txtPesquisa_avancada"))==TRUE)
 {
   remDr$refresh()
-  Sys.sleep(sample(1:60))
+  Sys.sleep(10)
 }
 
 for(j in nome_programa)
@@ -51,10 +43,10 @@ for(j in nome_programa)
   ## Pressiona botão de pesquisa
   press_button <- remDr$findElement(using = 'css', "#pesquisa02_0")
   press_button$clickElement()
-  
-  Sys.sleep(sample(1:3))
+  Sys.sleep(20)
   
   msg <- "Nenhum item encontrado para a pesquisa solicitada."
+  
   
   ## Checa se há resultados disponíveis
   if(remDr$findElement(using = 'css', "#navigation")$getElementText()[[1]]==msg)
@@ -82,14 +74,17 @@ for(j in nome_programa)
     }
       
   }
-  
 }
 
 remDr$close()
 driver$server$stop()
 driver$server$process
 
-teste <- iconv(corpo_email, "UTF-8", "latin1")
+if(Encoding(corpo_email)=='UTF-8')
+{
+  teste <- iconv(corpo_email, "UTF-8", "latin1")
+} else teste <- corpo_email
+
 
 OutApp <- COMCreate("Outlook.Application")
 outMail = OutApp$CreateItem(0)
@@ -103,5 +98,4 @@ outMail$Send()
 # taskscheduler_create(taskname = "Web_Scraping_Diario_Oficial_da_Uniao_SIGEF", 
 #                      rscript = "C:/Users/08259760495/Documents/Projetos - Git/FNDE/web_scraping_sigef.R", 
 #                      schedule = "WEEKLY", starttime = "06:30", days = c("MON", "TUE", "WED", "THU", "FRI"))
-
 

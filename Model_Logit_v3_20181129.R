@@ -277,14 +277,14 @@ stepmodel <- stepAIC(lrcompleto)
 
 summary (stepmodel)
 
-save(file="Z:/CGFIN/CGFIN/Gestão da Carteira/Modelos/logistic_v2.rda", lrcompleto)
-
 
 lrcompleto = glm(resposta ~ rendafamiliarmensalbruta_cat + rendapessoalmensalbruta_cat + 
                  valorfinaciados_cat + valorrendafiadoress_cat + 
                  taxadejuros_cat + garantia_cat + ufies_cat +  
                  porte_cat + escola_cat + novo_curso2, family = binomial("logit"), 
                  data = train)
+
+save(file="Z:/CGFIN/CGFIN/Gestão da Carteira/Modelos/logistic_v3.rda", lrcompleto)
 
 
 ##------------ Validacao do Modelo ------------##
